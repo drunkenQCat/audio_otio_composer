@@ -1,0 +1,5 @@
+*.otio
+opentimelineio_bak
+uv.lock
+.python-version
+
