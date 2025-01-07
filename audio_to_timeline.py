@@ -1,11 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 import heapq
-import random
 
 from models.audioclip import AudioClip, AudioGap
 from models.audiotrack import AudioTrack, CharacterGroup
-from opentimelineio.schema import Timeline
 
 
 def get_audio_clips(folder: str) -> list[AudioClip]:
@@ -97,10 +95,6 @@ def generate_no_overlap_tracks(
     heap_of_endpoints: list[EndPoint] = []
     tracks: list[AudioTrack] = []
 
-    print("--------------------------------------------------")
-    print(f"compose start, the count tracks is {len(tracks)}")
-    print("--------------------------------------------------")
-
     def get_new_track_name():
         return len(tracks) + 1
 
@@ -183,10 +177,7 @@ def generate_no_overlap_tracks(
         else:
             # 重叠了
             print(f"{clip.start_offset}, {clip.end_offset} overlap")
-            new_track = AudioTrack(
-                character=character,
-                index=get_new_track_name() + int(80 * random.random()),
-            )
+            new_track = AudioTrack(character=character, index=get_new_track_name())
             new_track.clips.append(clip)
             if no_tracks:
                 print("the new track info")
@@ -217,6 +208,7 @@ def generate_gap(duration: float) -> AudioGap:
         AudioClip: 生成的间隙音频剪辑。
     """
     gap = AudioGap(duration=duration)
+
     return gap
 
 
@@ -258,7 +250,7 @@ def flatten_chara_grps(chara_grps: list[CharacterGroup]) -> list[AudioTrack]:
     return audio_tracks
 
 
-def audio_to_timeline(clips: list[AudioClip]) -> list[AudioTrack]:
+def audio_to_tracks(clips: list[AudioClip]) -> list[AudioTrack]:
     """
     将音频剪辑列表转换为音轨列表。
 
