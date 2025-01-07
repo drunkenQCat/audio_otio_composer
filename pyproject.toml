@@ -1,5 +1,5 @@
 [project]
-name = "randomotio"
+name = "audio_otio_composer"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,4 +8,5 @@ dependencies = [
     "ipdb>=0.13.13",
     "opentimelineio>=0.17.0",
     "pybind11-stubgen>=2.5.1",
+    "wavinfo>=3.1.0",
 ]
