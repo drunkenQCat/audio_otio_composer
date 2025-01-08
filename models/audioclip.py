@@ -3,6 +3,8 @@ from opentimelineio.schema import Clip, ExternalReference, Gap
 from pathlib import Path
 import wavinfo
 
+from utils.logger import logger
+
 
 class AudioClip:
     audio_path: str
@@ -23,10 +25,10 @@ class AudioClip:
             audio_file, info_encoding="utf8", bext_encoding="utf8"
         )
         if not info or not info.fmt or not info.data:
-            print("Warning: please check the wav audio data")
+            logger.warn("Warning: please check the wav audio data")
             return
         if not info.bext or not info.info:
-            print("Warning: please check the wav metadata")
+            logger.warn("Warning: please check the wav metadata")
             return
 
         # 获取偏移时间

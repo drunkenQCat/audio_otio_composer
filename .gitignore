@@ -1,7 +1,7 @@
 *.otio
-opentimelineio_bak
 uv.lock
 .python-version
 
 .idea
 __pycache__
+logs/

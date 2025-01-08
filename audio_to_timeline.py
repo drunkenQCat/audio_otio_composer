@@ -4,6 +4,7 @@ import heapq
 
 from models.audioclip import AudioClip, AudioGap
 from models.audiotrack import AudioTrack, CharacterGroup
+from utils.logger import logger
 
 
 def get_audio_clips(folder: str) -> list[AudioClip]:
@@ -162,42 +163,84 @@ def generate_no_overlap_tracks(
     no_tracks = True
     for clip in clips:
         if tracks and heap_of_endpoints[0].end_time <= clip.start_offset:
-            print(f"{clip.start_offset}, not overlap")
+            logger.debug(f"{clip.start_offset}, not overlap")
             # 没有重叠
             last_endpoint = heapq.heappop(heap_of_endpoints)
-            print(f"now pop {last_endpoint}")
+            logger.debug(f"now pop {last_endpoint}")
             last_track_id = last_endpoint.track_idx
             tracks[last_track_id].clips.append(clip)
-            print(
+            logger.debug(
                 f"add {clip.start_offset}, {clip.end_offset} to track{last_track_id + 1}"
             )
             heapq.heappush(heap_of_endpoints, EndPoint(clip.end_offset, last_track_id))
-            print(f"the heap now :{heap_of_endpoints}")
-            print(f"!!!!the clip count of first track is {len(tracks[0].clips)}!!!!")
+            logger.debug(f"the heap now :{heap_of_endpoints}")
+            logger.debug(
+                f"!!!!the clip count of first track is {len(tracks[0].clips)}!!!!"
+            )
         else:
             # 重叠了
-            print(f"{clip.start_offset}, {clip.end_offset} overlap")
+            logger.debug(f"{clip.start_offset}, {clip.end_offset} overlap")
             new_track = AudioTrack(character=character, index=get_new_track_name())
             new_track.clips.append(clip)
             if no_tracks:
-                print("--------------------------------------------------")
-                print("the new track has been created, here's the first clip")
-                __import__("pprint").pprint(new_track.clips)
-                print(f"the clip count of track is {len(new_track.clips)}")
+                logger.info("--------------------------------------------------")
+                logger.info("the new track has been created, here's the first clip")
+                logger.info(new_track.clips)
+                logger.info(f"the clip count of track is {len(new_track.clips)}")
                 no_tracks = False
             tracks.append(new_track)
             current_heap_info = EndPoint(clip.end_offset, get_new_track_id())
-            print(f"{current_heap_info} added to the heap")
+            logger.debug(f"{current_heap_info} added to the heap")
             heapq.heappush(heap_of_endpoints, current_heap_info)
-            print("now the heap:")
-            __import__("pprint").pprint(heap_of_endpoints)
-            print(f"!!!!the clip count of first track is {len(tracks[0].clips)}!!!!")
+            logger.debug("now the heap:")
+            logger.debug(heap_of_endpoints)
+            logger.debug(
+                f"!!!!the clip count of first track is {len(tracks[0].clips)}!!!!"
+            )
 
-    print("--------------------------------------------------")
-    print(f"compose end, the clip count of first track is {len(tracks[0].clips)}")
-    print(f"the track count is {len(tracks)}")
-    print("--------------------------------------------------")
+    logger.info("--------------------------------------------------")
+    logger.info(f"compose end, the clip count of first track is {len(tracks[0].clips)}")
+    logger.info(f"the track count is {len(tracks)}")
+    logger.info("--------------------------------------------------")
     return tracks
+
+
+def merge_tracks(tracks: list[AudioTrack], threshold: float = 1.0) -> list[AudioTrack]:
+    """
+    合并轨道，将空隙较小的轨道合并到一个轨道。
+
+    参数:
+        tracks (list[AudioTrack]): 音轨列表。
+        threshold (float): 判断是否可以合并的空隙阈值（单位：时间长度）。
+
+    返回:
+        list[AudioTrack]: 合并后的音轨列表。
+    """
+    # 按轨道结束时间排序
+    tracks.sort(
+        key=lambda track: track.clips[-1].end_offset if track.clips else float("inf")
+    )
+
+    merged_tracks = []
+    current_track = tracks[0]
+
+    for i in range(1, len(tracks)):
+        last_clip_end_time = current_track.clips[-1].end_offset
+        first_clip_start_time = tracks[i].clips[0].start_offset
+
+        # 如果轨道之间的空隙小于阈值，则尝试合并
+        if first_clip_start_time - last_clip_end_time <= threshold:
+            # 将轨道i的所有片段加到当前轨道
+            current_track.clips.extend(tracks[i].clips)
+        else:
+            # 否则，保留当前轨道，创建新的轨道
+            merged_tracks.append(current_track)
+            current_track = tracks[i]
+
+    # 最后添加剩下的轨道
+    merged_tracks.append(current_track)
+
+    return merged_tracks
 
 
 def generate_gap(duration: float) -> AudioGap:

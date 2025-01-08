@@ -7,6 +7,8 @@ from opentimelineio.core import Track
 from opentimelineio.schema import Timeline
 from opentimelineio.opentime import TimeRange, to_frames, RationalTime
 
+from utils.logger import logger
+
 
 def create_timeline(global_start_hour: int, fps: int) -> Timeline:
     """
@@ -73,7 +75,7 @@ def make_otio(
     :param global_start_hour: 时间轴的全局起始时间（小时）。
     :param fps: 时间轴的帧率。
     """
-    print("start to export otio file ...")
+    logger.info("start to export otio file ...")
     timeline = create_timeline(global_start_hour, fps)
     tracks = [create_audio_track(tr) for tr in audio_tracks]
 
@@ -84,7 +86,7 @@ def make_otio(
 
     # 输出 OTIO 文件
     otio.adapters.write_to_file(timeline, f"{output}.otio")
-    print("Finished!!")
+    logger.info("Finished!!")
 
 
 @click.command()
