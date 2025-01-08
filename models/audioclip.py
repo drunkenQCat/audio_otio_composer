@@ -1,21 +1,24 @@
 from opentimelineio.opentime import TimeRange, RationalTime
-from opentimelineio.schema import Clip, ExternalReference
+from opentimelineio.schema import Clip, ExternalReference, Gap
+from pathlib import Path
 import wavinfo
 
 
 class AudioClip:
-    frame_rate: float = 24
     audio_path: str
+    frame_rate: float = 24
+    character: str = ""
     start_offset: float = 0.0
     duration: float = 0.0
-    audio_range: TimeRange = TimeRange()
-
-    character: str
-
-    clip: Clip = Clip()
 
     def __init__(self, audio_file: str, frame_rate: float = 24):
-        self.audio_path = audio_file
+        self.audio_range = TimeRange()
+        self.clip: Clip | Gap = Clip()
+
+        audio_path = Path(audio_file)
+        self.audio_path = str(audio_path.absolute())
+        self.clip.name = audio_path.name
+
         # 获取wav元数据
         info = wavinfo.WavInfoReader(audio_file)
         if not info or not info.fmt or not info.data:
@@ -42,7 +45,7 @@ class AudioClip:
 
         # 初始化片段
         self.clip.media_reference = ExternalReference(
-            target_url=audio_file, available_range=self.audio_range
+            target_url=self.audio_path, available_range=self.audio_range
         )
         self.clip.source_range = self.audio_range
 
@@ -53,8 +56,24 @@ class AudioClip:
     def __lt__(self, other):
         return self.start_offset < other.start_offset
 
+    def __repr__(self):
+        return f"""
+        AudioClip(
+        audio_path='{self.audio_path}', 
+        start_offset={self.start_offset}, duration={self.duration}, character='{self.character}'
+        )"""
+
 
 class AudioGap(AudioClip):
     def __init__(self, duration: float):
         self.duration = duration
+
+        gap = Gap()
+        gap.source_range = TimeRange(duration=RationalTime(duration, self.frame_rate))
+        gap.name = "black"
+        self.clip = gap
+
         self.character = "gap"
+
+    def __repr__(self):
+        return f"\nGap(duration={self.duration})"

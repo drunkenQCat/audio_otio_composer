@@ -5,7 +5,7 @@ from audio_to_timeline import (
     group_clips_by_character,
     organize_tracks_by_character,
     generate_gap,
-    audio_to_timeline,
+    audio_to_tracks,
 )
 
 
@@ -41,9 +41,11 @@ def is_any_clip_overlap(start_end_list):
     # No overlaps found
     return False
 
+
 def test_get_audio_clips():
     clips = get_audio_clips("test_data")
     assert len(clips) == 9
+
 
 def test_group_clips_by_character(clips):
     groups = group_clips_by_character(clips)
@@ -87,7 +89,7 @@ def test_generate_gap():
 
 
 def test_generate_gaps_between_clips(clips):
-    clips_with_gaps = audio_to_timeline(clips)[0].clips
+    clips_with_gaps = audio_to_tracks(clips)[0].clips
     # 应包含间隙和原始剪辑
     assert len(clips_with_gaps) == 4
     assert clips_with_gaps[0].character == "gap"
@@ -99,7 +101,7 @@ def test_generate_gaps_between_clips(clips):
 
 
 def test_audio_to_timeline(clips):
-    audio_tracks = audio_to_timeline(clips)
+    audio_tracks = audio_to_tracks(clips)
     # 根据设置，应该有2轨Alice和1轨Bob
     assert len(audio_tracks) == 4
     alice_tracks = [track for track in audio_tracks if track.character == "Alice"]
