@@ -13,15 +13,15 @@ from audio_to_timeline import (
 def clips():
     # 设置测试用的音频剪辑
     return [
-        AudioClip(audio_file="test_data/audio1.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio2.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio3.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio4.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio5.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio6.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio7.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio8.wav", frame_rate=24),
-        AudioClip(audio_file="test_data/audio9.wav", frame_rate=24),
+        AudioClip(audio_file="test_data/audio1.wav"),
+        AudioClip(audio_file="test_data/audio2.wav"),
+        AudioClip(audio_file="test_data/audio3.wav"),
+        AudioClip(audio_file="test_data/audio4.wav"),
+        AudioClip(audio_file="test_data/audio5.wav"),
+        AudioClip(audio_file="test_data/audio6.wav"),
+        AudioClip(audio_file="test_data/audio7.wav"),
+        AudioClip(audio_file="test_data/audio8.wav"),
+        AudioClip(audio_file="test_data/audio9.wav"),
     ]
 
 

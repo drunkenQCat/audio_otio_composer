@@ -6,12 +6,11 @@ import wavinfo
 
 class AudioClip:
     audio_path: str
-    frame_rate: float = 24
     character: str = ""
     start_offset: float = 0.0
     duration: float = 0.0
 
-    def __init__(self, audio_file: str, frame_rate: float = 24):
+    def __init__(self, audio_file: str):
         self.audio_range = TimeRange()
         self.clip: Clip | Gap = Clip()
 
@@ -38,8 +37,8 @@ class AudioClip:
         # 获取音频时长
         self.duration = info.data.frame_count / sample_rate
         self.audio_range = TimeRange(
-            RationalTime(0, frame_rate),
-            RationalTime(self.duration, frame_rate),
+            RationalTime(0),
+            RationalTime().from_seconds(self.duration),
         )
 
         # 获取通道数
@@ -86,7 +85,7 @@ class AudioGap(AudioClip):
         self.duration = duration
 
         gap = Gap()
-        gap.source_range = TimeRange(duration=RationalTime(duration, self.frame_rate))
+        gap.source_range = TimeRange(duration=RationalTime().from_seconds(duration))
         gap.name = "black"
         self.clip = gap
 

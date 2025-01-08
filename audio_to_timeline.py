@@ -19,7 +19,7 @@ def get_audio_clips(folder: str) -> list[AudioClip]:
     audio_clips = []
     folder_path = Path(folder)
     for audio_file in folder_path.glob("**/*.wav"):
-        clip = AudioClip(audio_file=str(audio_file), frame_rate=24)
+        clip = AudioClip(audio_file=str(audio_file))
         audio_clips.append(clip)
     return audio_clips
 
