@@ -2,7 +2,6 @@
  Algorithms for stack objects. 
 """
 from __future__ import annotations
-from opentimelineio import _otio
 from opentimelineio._otio import flatten_stack
 from opentimelineio import opentime
 from opentimelineio import schema

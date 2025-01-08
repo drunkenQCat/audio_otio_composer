@@ -6,8 +6,6 @@ see: http://opentimeline.io
 .. moduleauthor:: Contributors to the OpenTimelineIO project <otio-discussion@lists.aswf.io>
 """
 from __future__ import annotations
-from . import _opentime
-from . import _otio
 from . import adapters
 from . import algorithms
 from . import core

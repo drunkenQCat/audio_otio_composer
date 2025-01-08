@@ -13,12 +13,8 @@ modules.
 from __future__ import annotations
 import itertools as itertools
 from opentimelineio.adapters.adapter import Adapter
-from opentimelineio import exceptions
-from opentimelineio import media_linker
-from opentimelineio import plugins
 import os as os
 import pathlib as pathlib
-from . import adapter
 from . import file_bundle_utils
 from . import otio_json
 __all__: list = ['Adapter', 'otio_json', 'file_bundle_utils', 'suffixes_with_defined_adapters', 'available_adapter_names', 'from_filepath', 'from_name', 'read_from_file', 'read_from_string', 'write_to_file', 'write_to_string']

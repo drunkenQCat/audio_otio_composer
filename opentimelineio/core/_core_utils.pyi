@@ -1,7 +1,6 @@
 from __future__ import annotations
 import collections as collections
 import copy as copy
-from opentimelineio import _otio
 from opentimelineio._otio import AnyDictionary
 from opentimelineio._otio import AnyVector
 from opentimelineio._otio import PyAny

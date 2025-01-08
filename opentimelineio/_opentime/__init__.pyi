@@ -4,10 +4,6 @@ Bindings to C++ OTIO implementation
 
 from __future__ import annotations
 import typing
-from typing import Optional
-from dataclasses import dataclass
-from . import _testing
-from opentimelineio._otio import Track, Composable
 
 __all__ = ["RationalTime", "TimeRange", "TimeTransform"]
 

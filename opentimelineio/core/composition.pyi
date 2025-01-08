@@ -1,5 +1,4 @@
 from __future__ import annotations
-from opentimelineio import _otio
 from opentimelineio.core._core_utils import add_method
 __all__ = ['add_method']
 __repr__ = None
