@@ -20,7 +20,9 @@ class AudioClip:
         self.clip.name = audio_path.name
 
         # 获取wav元数据
-        info = wavinfo.WavInfoReader(audio_file)
+        info = wavinfo.WavInfoReader(
+            audio_file, info_encoding="utf8", bext_encoding="utf8"
+        )
         if not info or not info.fmt or not info.data:
             print("Warning: please check the wav audio data")
             return
@@ -40,14 +42,29 @@ class AudioClip:
             RationalTime(self.duration, frame_rate),
         )
 
+        # 获取通道数
+        channel_count = info.fmt.channel_count
+        self.clip.metadata["Resolve_OTIO"] = self.generate_davinci_channel_metadata(
+            channel_count
+        )
+
         # 获取角色名
         self.character = "" if not info.info.artist else info.info.artist
 
-        # 初始化片段
+        # 与文件链接
         self.clip.media_reference = ExternalReference(
             target_url=self.audio_path, available_range=self.audio_range
         )
         self.clip.source_range = self.audio_range
+
+    @staticmethod
+    def generate_davinci_channel_metadata(channel_count: int) -> dict[str, list[dict]]:
+        channel_info = []
+        for id in range(channel_count):
+            current_channel = {"Source Channel ID": id, "Source Track ID": id}
+            channel_info.append(current_channel)
+
+        return {"Channels": channel_info}
 
     @property
     def end_offset(self) -> float:

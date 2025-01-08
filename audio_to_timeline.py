@@ -18,7 +18,7 @@ def get_audio_clips(folder: str) -> list[AudioClip]:
     """
     audio_clips = []
     folder_path = Path(folder)
-    for audio_file in folder_path.glob("*.wav"):
+    for audio_file in folder_path.glob("**/*.wav"):
         clip = AudioClip(audio_file=str(audio_file), frame_rate=24)
         audio_clips.append(clip)
     return audio_clips
@@ -180,7 +180,8 @@ def generate_no_overlap_tracks(
             new_track = AudioTrack(character=character, index=get_new_track_name())
             new_track.clips.append(clip)
             if no_tracks:
-                print("the new track info")
+                print("--------------------------------------------------")
+                print("the new track has been created, here's the first clip")
                 __import__("pprint").pprint(new_track.clips)
                 print(f"the clip count of track is {len(new_track.clips)}")
                 no_tracks = False
@@ -188,11 +189,13 @@ def generate_no_overlap_tracks(
             current_heap_info = EndPoint(clip.end_offset, get_new_track_id())
             print(f"{current_heap_info} added to the heap")
             heapq.heappush(heap_of_endpoints, current_heap_info)
-            print(f"now the heap:{heap_of_endpoints}")
+            print("now the heap:")
+            __import__("pprint").pprint(heap_of_endpoints)
             print(f"!!!!the clip count of first track is {len(tracks[0].clips)}!!!!")
 
     print("--------------------------------------------------")
     print(f"compose end, the clip count of first track is {len(tracks[0].clips)}")
+    print(f"the track count is {len(tracks)}")
     print("--------------------------------------------------")
     return tracks
 

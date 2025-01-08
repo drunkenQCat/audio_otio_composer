@@ -1,3 +1,5 @@
+import click
+from datetime import datetime
 from audio_to_timeline import audio_to_tracks, get_audio_clips
 from models.audiotrack import AudioTrack
 import opentimelineio as otio
@@ -28,7 +30,7 @@ def create_timeline(global_start_hour: int, fps: int) -> Timeline:
     return timeline
 
 
-def create_track(track: AudioTrack) -> Track:
+def create_audio_track(track: AudioTrack) -> Track:
     """
     创建指定数量的空 OTIO 轨道。
 
@@ -36,7 +38,12 @@ def create_track(track: AudioTrack) -> Track:
     :return: 一个包含 OTIO 轨道实例的列表。
     """
     # 创建指定数量的轨道
-    tr = Track(track.track_name)
+    tr = Track(track.track_name, kind="Audio")
+    tr.metadata["Resolve_OTIO"] = {
+        "Audio Type": "Mono",
+        "Locked": False,
+        "SoloOn": False,
+    }
     for clip in track.clips:
         tr.append(clip.clip)
     return tr
@@ -53,7 +60,10 @@ def set_track_source_range(track: Track, start_time: RationalTime):
 
 
 def make_otio(
-    audio_tracks: list[AudioTrack], global_start_hour: int = 0, fps: int = 24
+    audio_tracks: list[AudioTrack],
+    global_start_hour: int = 0,
+    fps: int = 24,
+    output: str = "",
 ):
     """
     生成一个包含随机轨道和剪辑的 OTIO 时间轴。
@@ -65,7 +75,7 @@ def make_otio(
     """
     print("start to export otio file ...")
     timeline = create_timeline(global_start_hour, fps)
-    tracks = [create_track(tr) for tr in audio_tracks]
+    tracks = [create_audio_track(tr) for tr in audio_tracks]
 
     hour_one_frames = to_frames(RationalTime(global_start_hour * 60**2), rate=fps)
     for track in tracks:
@@ -73,22 +83,41 @@ def make_otio(
         timeline.tracks.append(track)
 
     # 输出 OTIO 文件
-    otio.adapters.write_to_file(timeline, "project.otio")
+    otio.adapters.write_to_file(timeline, f"{output}.otio")
     print("Finished!!")
 
 
-def main():
+@click.command()
+@click.option(
+    "--path",
+    "-p",
+    default="test_data",
+    help="输入数据路径，通常是包含音频文件的文件夹路径。",
+)
+@click.option("--output", "-o", help="输出文件名，用于生成 OTIO 时间轴文件。")
+def main(path: str, output: str | None = None):
     """
     主函数，用于生成具有用户定义参数的随机 OTIO 时间轴。
+
+    :param path: 输入数据路径，通常是包含音频文件的文件夹路径。
+
+    :param output: 输出文件名，用于生成 OTIO 时间轴文件。没有提供时，默认使用 "test_data"。
     """
     # 设置参数
+    if output is None:
+        # 默认工程名
+        output = "test_data"
+    else:
+        now = datetime.now().strftime("%y%m%d_%H%M")
+        output = f"{output}_{now}"
+
     global_start_hour = 0  # 时间轴全局起始时间（小时）
     fps = 24  # 帧率
 
     # 调用主函数生成时间轴
-    audio_list = get_audio_clips("test_data")
+    audio_list = get_audio_clips(path)
     tracks = audio_to_tracks(audio_list)
-    make_otio(tracks, global_start_hour, fps)
+    make_otio(tracks, global_start_hour, fps, output)
 
 
 if __name__ == "__main__":
