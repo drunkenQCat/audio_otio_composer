@@ -1,8 +1,9 @@
 import click
 from datetime import datetime
-from audio_to_timeline import audio_to_tracks, get_audio_clips
-from models.audiotrack import AudioTrack
+from audio_composer.composer.audio_to_timeline import audio_to_tracks, get_audio_clips
+from audio_composer.models.audiotrack import AudioTrack
 import opentimelineio as otio
+from opentimelineio._otio import Gap
 from opentimelineio.core import Track
 from opentimelineio.schema import Timeline
 from opentimelineio.opentime import TimeRange, to_frames, RationalTime
@@ -61,6 +62,19 @@ def set_track_source_range(track: Track, start_time: RationalTime):
     track.source_range = TimeRange(start_time, track.duration())
 
 
+def generate_first_empty_track(duration: float = 576) -> Track:
+    tr = Track(name="Video 1")
+    tr.metadata["Resolve_OTIO"] = {"Locked": False}
+
+    gap = Gap()
+    time_range = TimeRange(duration=RationalTime(rate=24, value=duration))
+    gap.source_range = time_range
+
+    tr.append(gap)
+
+    return tr
+
+
 def make_otio(
     audio_tracks: list[AudioTrack],
     global_start_hour: int = 0,
@@ -77,6 +91,8 @@ def make_otio(
     """
     logger.info("start to export otio file ...")
     timeline = create_timeline(global_start_hour, fps)
+    # 添加一个占位用的视频轨道
+    timeline.tracks.append(Track(name="Video 1"))
     tracks = [create_audio_track(tr) for tr in audio_tracks]
 
     hour_one_frames = to_frames(RationalTime(global_start_hour * 60**2), rate=fps)

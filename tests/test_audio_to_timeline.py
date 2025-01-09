@@ -1,6 +1,6 @@
 import pytest
-from models.audioclip import AudioClip
-from audio_to_timeline import (
+from audio_composer.models.audioclip import AudioClip
+from audio_composer.composer.audio_to_timeline import (
     get_audio_clips,
     group_clips_by_character,
     organize_tracks_by_character,

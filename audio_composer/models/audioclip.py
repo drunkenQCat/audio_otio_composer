@@ -3,6 +3,7 @@ from opentimelineio.schema import Clip, ExternalReference, Gap
 from pathlib import Path
 import wavinfo
 
+from davinci_resolve.metadata_manager.fx_generator import add_default_afxs
 from utils.logger import logger
 
 
@@ -57,6 +58,9 @@ class AudioClip:
             target_url=self.audio_path, available_range=self.audio_range
         )
         self.clip.source_range = self.audio_range
+
+        # 添加默认音频效果
+        add_default_afxs(self.clip)
 
     @staticmethod
     def generate_davinci_channel_metadata(channel_count: int) -> dict[str, list[dict]]:

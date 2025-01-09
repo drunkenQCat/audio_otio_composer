@@ -1,4 +1,4 @@
-from models.audioclip import AudioClip
+from audio_composer.models.audioclip import AudioClip
 from dataclasses import dataclass, field
 
 

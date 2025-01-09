@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import heapq
 
-from models.audioclip import AudioClip, AudioGap
-from models.audiotrack import AudioTrack, CharacterGroup
+from audio_composer.models.audioclip import AudioClip, AudioGap
+from audio_composer.models.audiotrack import AudioTrack, CharacterGroup
 from utils.logger import logger
 
 

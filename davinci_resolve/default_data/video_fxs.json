@@ -1,0 +1,149 @@
+{
+    "effects": [
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Transform",
+                    "Enabled": true,
+                    "Name": "Transform",
+                    "Parameters": [],
+                    "Type": 2
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Cropping",
+                    "Enabled": true,
+                    "Name": "Cropping",
+                    "Parameters": [],
+                    "Type": 3
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Dynamic Zoom",
+                    "Enabled": false,
+                    "Name": "Dynamic Zoom",
+                    "Parameters": [
+                        {
+                            "Default Parameter Value": [
+                                0.0,
+                                0.0
+                            ],
+                            "Key Frames": {
+                                "-357": {
+                                    "Value": [
+                                        0.0,
+                                        0.0
+                                    ],
+                                    "Variant Type": "POINTF"
+                                },
+                                "643": {
+                                    "Value": [
+                                        0.0,
+                                        0.0
+                                    ],
+                                    "Variant Type": "POINTF"
+                                }
+                            },
+                            "Parameter ID": "dynamicZoomCenter",
+                            "Parameter Value": [
+                                0.0,
+                                0.0
+                            ],
+                            "Variant Type": "POINTF"
+                        },
+                        {
+                            "Default Parameter Value": 1.0,
+                            "Key Frames": {
+                                "-357": {
+                                    "Value": 0.8,
+                                    "Variant Type": "Double"
+                                },
+                                "643": {
+                                    "Value": 1.0,
+                                    "Variant Type": "Double"
+                                }
+                            },
+                            "Parameter ID": "dynamicZoomScale",
+                            "Parameter Value": 1.0,
+                            "Variant Type": "Double",
+                            "maxValue": 100.0,
+                            "minValue": 0.01
+                        }
+                    ],
+                    "Type": 59
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Composite",
+                    "Enabled": true,
+                    "Name": "Composite",
+                    "Parameters": [],
+                    "Type": 1
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Lens Correction",
+                    "Enabled": true,
+                    "Name": "Lens Correction",
+                    "Parameters": [],
+                    "Type": 43
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Retime and Scaling",
+                    "Enabled": true,
+                    "Name": "Retime and Scaling",
+                    "Parameters": [],
+                    "Type": 22
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        },
+        {
+            "OTIO_SCHEMA": "Effect.1",
+            "metadata": {
+                "Resolve_OTIO": {
+                    "Effect Name": "Video Faders",
+                    "Enabled": true,
+                    "Name": "Video Faders",
+                    "Parameters": [],
+                    "Type": 36
+                }
+            },
+            "name": "",
+            "effect_name": "Resolve Effect"
+        }
+    ]
+}
