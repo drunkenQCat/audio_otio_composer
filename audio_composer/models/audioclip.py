@@ -9,17 +9,20 @@ from utils.logger import logger
 
 class AudioClip:
     audio_path: str
-    character: str = ""
+    character: str = "character A"
     start_offset: float = 0.0
     duration: float = 0.0
+    frame_rate: float = 24.0
 
-    def __init__(self, audio_file: str):
+    def __init__(self, audio_file: str, rate: float = 24.0):
         self.audio_range = TimeRange()
         self.clip: Clip | Gap = Clip()
 
         audio_path = Path(audio_file)
         self.audio_path = str(audio_path.absolute())
         self.clip.name = audio_path.name
+
+        self.frame_rate = rate
 
         # 获取wav元数据
         info = wavinfo.WavInfoReader(
@@ -40,8 +43,8 @@ class AudioClip:
         # 获取音频时长
         self.duration = info.data.frame_count / sample_rate
         self.audio_range = TimeRange(
-            RationalTime(0),
-            RationalTime().from_seconds(self.duration),
+            RationalTime(0, self.frame_rate),
+            RationalTime().from_seconds(self.duration, self.frame_rate),
         )
 
         # 获取通道数
@@ -51,12 +54,17 @@ class AudioClip:
         )
 
         # 获取角色名
-        self.character = "" if not info.info.artist else info.info.artist
+        self.character = "character A" if not info.info.artist else info.info.artist
 
         # 与文件链接
-        self.clip.media_reference = ExternalReference(
-            target_url=self.audio_path, available_range=self.audio_range
+        external_range = TimeRange(
+            RationalTime().from_seconds(self.start_offset, self.frame_rate),
+            RationalTime().from_seconds(self.duration, self.frame_rate),
         )
+        self.clip.media_reference = ExternalReference(
+            target_url=self.audio_path, available_range=external_range
+        )
+        self.clip.media_reference.name = audio_path.name
         self.clip.source_range = self.audio_range
 
         # 添加默认音频效果
@@ -87,11 +95,15 @@ class AudioClip:
 
 
 class AudioGap(AudioClip):
-    def __init__(self, duration: float):
+    def __init__(self, duration: float, rate: float = 24.0):
         self.duration = duration
 
+        self.frame_rate = rate
+
         gap = Gap()
-        gap.source_range = TimeRange(duration=RationalTime().from_seconds(duration))
+        gap.source_range = TimeRange(
+            duration=RationalTime().from_seconds(duration, self.frame_rate)
+        )
         gap.name = "black"
         self.clip = gap
 

@@ -7,7 +7,7 @@ from audio_composer.models.audiotrack import AudioTrack, CharacterGroup
 from utils.logger import logger
 
 
-def get_audio_clips(folder: str) -> list[AudioClip]:
+def get_audio_clips(folder: str, fps: float = 24.0) -> list[AudioClip]:
     """
     从指定文件夹中获取所有音频剪辑。
 
@@ -20,7 +20,7 @@ def get_audio_clips(folder: str) -> list[AudioClip]:
     audio_clips = []
     folder_path = Path(folder)
     for audio_file in folder_path.glob("**/*.wav"):
-        clip = AudioClip(audio_file=str(audio_file))
+        clip = AudioClip(audio_file=str(audio_file), rate=fps)
         audio_clips.append(clip)
     return audio_clips
 
@@ -60,6 +60,7 @@ def organize_tracks_by_character(
     """
     character_groups: list[CharacterGroup] = []
     for character, clips in clip_groups:
+        # tracks = generate_no_overlap_tracks(character, clips)
         tracks = generate_no_overlap_tracks(character, clips)
         group = CharacterGroup(character=character, tracks=tracks)
         character_groups.append(group)
@@ -243,7 +244,7 @@ def merge_tracks(tracks: list[AudioTrack], threshold: float = 1.0) -> list[Audio
     return merged_tracks
 
 
-def generate_gap(duration: float) -> AudioGap:
+def generate_gap(duration: float, fps: float = 24.0) -> AudioGap:
     """
     生成一个音频间隙。
 
@@ -253,12 +254,14 @@ def generate_gap(duration: float) -> AudioGap:
     返回:
         AudioClip: 生成的间隙音频剪辑。
     """
-    gap = AudioGap(duration=duration)
+    gap = AudioGap(duration=duration, rate=fps)
 
     return gap
 
 
-def generate_gaps_between_clips(clips: list[AudioClip]) -> list[AudioClip]:
+def generate_gaps_between_clips(
+    clips: list[AudioClip], fps: float = 24.0
+) -> list[AudioClip]:
     """
     根据AudioClip.offset_seconds，计算轨道上所有音频片段之间应当填充的间隙长度，
     并在在音频剪辑之间插入间隙。
@@ -273,7 +276,9 @@ def generate_gaps_between_clips(clips: list[AudioClip]) -> list[AudioClip]:
     previous_offset = 0
     for clip in clips:
         gap_duration = clip.start_offset - previous_offset
-        gap = generate_gap(gap_duration)
+        if gap_duration == 0:
+            continue
+        gap = generate_gap(gap_duration, fps)
 
         clips_with_gaps += [gap, clip]
         previous_offset = clip.end_offset
@@ -296,7 +301,7 @@ def flatten_chara_grps(chara_grps: list[CharacterGroup]) -> list[AudioTrack]:
     return audio_tracks
 
 
-def audio_to_tracks(clips: list[AudioClip]) -> list[AudioTrack]:
+def audio_to_tracks(clips: list[AudioClip], fps: float = 24.0) -> list[AudioTrack]:
     """
     将音频剪辑列表转换为音轨列表。
 
@@ -316,6 +321,6 @@ def audio_to_tracks(clips: list[AudioClip]) -> list[AudioTrack]:
     audio_tracks = flatten_chara_grps(character_groups)
     # 插入间隙
     for track in audio_tracks:
-        track.clips = generate_gaps_between_clips(track.clips)
+        track.clips = generate_gaps_between_clips(track.clips, fps)
 
     return audio_tracks

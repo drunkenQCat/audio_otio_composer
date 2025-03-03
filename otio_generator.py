@@ -11,7 +11,7 @@ from opentimelineio.opentime import TimeRange, to_frames, RationalTime
 from utils.logger import logger
 
 
-def create_timeline(global_start_hour: int, fps: int) -> Timeline:
+def create_timeline(global_start_hour: int, fps: float) -> Timeline:
     """
     创建一个新的 OTIO 时间轴并设置元数据和全局起始时间。
 
@@ -21,7 +21,6 @@ def create_timeline(global_start_hour: int, fps: int) -> Timeline:
     """
     # 创建时间轴实例并设置名称
     timeline = Timeline()
-    timeline.name = "Generated with Audio Otio Composer"
 
     # 设置全局起始时间
     seconds = global_start_hour * 60**2
@@ -29,7 +28,7 @@ def create_timeline(global_start_hour: int, fps: int) -> Timeline:
     timeline.global_start_time = RationalTime(hour_one_frames, fps)
 
     # 添加元数据
-    timeline.metadata["Audio Otio Composer"] = {"version": "0.1.0"}
+    timeline.metadata["Resolve_OTIO"] = {"Resolve OTIO Meta Version": "1.0"}
     return timeline
 
 
@@ -78,7 +77,7 @@ def generate_first_empty_track(duration: float = 576) -> Track:
 def make_otio(
     audio_tracks: list[AudioTrack],
     global_start_hour: int = 0,
-    fps: int = 24,
+    fps: float = 24.0,
     output: str = "",
 ):
     """
@@ -113,7 +112,8 @@ def make_otio(
     help="输入数据路径，通常是包含音频文件的文件夹路径。",
 )
 @click.option("--output", "-o", help="输出文件名，用于生成 OTIO 时间轴文件。")
-def main(path: str, output: str | None = None):
+@click.option("--fps", "-f", type=float, default=24.0, help="帧率")
+def main(path: str, output: str | None = None, fps: float = 24.0):
     """
     主函数，用于生成具有用户定义参数的随机 OTIO 时间轴。
 
@@ -130,10 +130,9 @@ def main(path: str, output: str | None = None):
         output = f"{output}_{now}"
 
     global_start_hour = 0  # 时间轴全局起始时间（小时）
-    fps = 24  # 帧率
 
     # 调用主函数生成时间轴
-    audio_list = get_audio_clips(path)
+    audio_list = get_audio_clips(path, fps=fps)
     tracks = audio_to_tracks(audio_list)
     make_otio(tracks, global_start_hour, fps, output)
 
