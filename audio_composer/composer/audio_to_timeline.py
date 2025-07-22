@@ -1,8 +1,18 @@
 from pathlib import Path
+import os
 
 from audio_composer.composer.scanline_composer import generate_no_overlap_tracks
 from audio_composer.models.audioclip import AudioClip, AudioGap
 from audio_composer.models.audiotrack import AudioTrack, CharacterGroup
+
+
+def safe_path(path: Path) -> str:
+    """将 Path 转成带windows 标准长路径前缀的绝对路径字符串"""
+    if os.name == "nt":
+        abs_path = path.resolve()
+        return f"\\\\?\\{abs_path}"
+    else:
+        return path.as_posix()
 
 
 def get_audio_clips(folder: str, fps: float = 24.0) -> list[AudioClip]:
@@ -18,7 +28,7 @@ def get_audio_clips(folder: str, fps: float = 24.0) -> list[AudioClip]:
     audio_clips = []
     folder_path = Path(folder)
     for audio_file in folder_path.glob("**/*.wav"):
-        clip = AudioClip(audio_file=str(audio_file), rate=fps)
+        clip = AudioClip(audio_file=safe_path(audio_file), rate=fps)
         audio_clips.append(clip)
     return audio_clips
 
@@ -45,7 +55,7 @@ def group_clips_by_character(
 
 
 def organize_tracks_by_character(
-    clip_groups: list[tuple[str, list[AudioClip]]]
+    clip_groups: list[tuple[str, list[AudioClip]]],
 ) -> list[CharacterGroup]:
     """
     根据角色组织音频剪辑分组为角色组，并将其规整到相应轨道上。
