@@ -87,8 +87,8 @@ def launch_gui():
                 # 生成OTIO文件
                 global_start_hour = 0  # 时间轴全局起始时间（小时）
                 fps = 24  # 帧率
-                audio_list = get_audio_clips(task_path)
-                tracks = audio_to_tracks(audio_list)
+                audio_list = get_audio_clips(task_path, fps=fps)
+                tracks = audio_to_tracks(audio_list, fps=fps)
                 make_otio(tracks, global_start_hour, fps, output_filename)
                 
                 success_count += 1

@@ -4,7 +4,14 @@ from pathlib import Path
 import wavinfo
 
 from davinci_resolve.metadata_manager.fx_generator import add_default_afxs
+from premiere_pro.pr_metadata import make_clip_metadata
+from premiere_pro.pr_effects import add_pr_clip_effects
 from utils.logger import logger
+
+# Metadata 模式常量
+MODE_MIX = "mix"
+MODE_RESOLVE = "resolve"
+MODE_PREMIERE = "premiere"
 
 
 class AudioClip:
@@ -13,8 +20,11 @@ class AudioClip:
     start_offset: float = 0.0
     duration: float = 0.0
     frame_rate: float = 24.0
+    channel_count: int = 1
 
-    def __init__(self, audio_file: str, rate: float = 24.0):
+    def __init__(
+        self, audio_file: str, rate: float = 24.0, metadata_mode: str = MODE_MIX
+    ):
         self.audio_range = TimeRange()
         self.clip: Clip | Gap = Clip()
 
@@ -29,10 +39,10 @@ class AudioClip:
             audio_file, info_encoding="utf8", bext_encoding="utf8"
         )
         if not info or not info.fmt or not info.data:
-            logger.warn("Warning: please check the wav audio data")
+            logger.warning("Warning: please check the wav audio data")
             return
         if not info.bext or not info.info:
-            logger.warn("Warning: please check the wav metadata")
+            logger.warning("Warning: please check the wav metadata")
             return
 
         # 获取偏移时间
@@ -43,15 +53,21 @@ class AudioClip:
         # 获取音频时长
         self.duration = info.data.frame_count / sample_rate
         self.audio_range = TimeRange(
-            RationalTime(0, self.frame_rate),
+            RationalTime().from_seconds(self.start_offset, self.frame_rate),
             RationalTime().from_seconds(self.duration, self.frame_rate),
         )
 
         # 获取通道数
-        channel_count = info.fmt.channel_count
-        self.clip.metadata["Resolve_OTIO"] = self.generate_davinci_channel_metadata(
-            channel_count
-        )
+        self.channel_count = info.fmt.channel_count
+        channel_count = self.channel_count
+
+        # 根据 metadata_mode 添加 metadata
+        if metadata_mode in (MODE_MIX, MODE_RESOLVE):
+            self.clip.metadata["Resolve_OTIO"] = self.generate_davinci_channel_metadata(
+                channel_count
+            )
+        if metadata_mode in (MODE_MIX, MODE_PREMIERE):
+            self.clip.metadata.update(make_clip_metadata(channel_count))
 
         # 获取角色名
         self.character = "character A" if not info.info.artist else info.info.artist
@@ -68,7 +84,10 @@ class AudioClip:
         self.clip.source_range = self.audio_range
 
         # 添加默认音频效果
-        add_default_afxs(self.clip)
+        if metadata_mode in (MODE_MIX, MODE_RESOLVE):
+            add_default_afxs(self.clip)
+        if metadata_mode in (MODE_MIX, MODE_PREMIERE):
+            add_pr_clip_effects(self.clip, channel_count, self.frame_rate)
 
     @staticmethod
     def generate_davinci_channel_metadata(channel_count: int) -> dict[str, list[dict]]:
@@ -104,9 +123,10 @@ class AudioGap(AudioClip):
         gap.source_range = TimeRange(
             duration=RationalTime().from_seconds(duration, self.frame_rate)
         )
-        gap.name = "black"
+        gap.name = ""
         self.clip = gap
 
+        self.channel_count = 1
         self.character = "gap"
 
     def __repr__(self):

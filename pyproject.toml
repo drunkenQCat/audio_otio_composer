@@ -8,8 +8,18 @@ dependencies = [
     "click>=8.1.8",
     "ipdb>=0.13.13",
     "opentimelineio>=0.17.0",
+    "otio-aaf-adapter>=2.0.0",
     "pybind11-stubgen>=2.5.1",
     "pydantic>=2.10.4",
     "pytest>=8.3.4",
+    "python-reapy>=0.10.0",
+    "rpp>=0.5",
+    "types-opentimelineio>=0.17.0.1",
     "wavinfo>=3.1.0",
 ]
+
+[tool.uv]
+package = true
+
+[tool.setuptools.packages.find]
+include = ["audio_composer*", "davinci_resolve*", "premiere_pro*", "utils*"]

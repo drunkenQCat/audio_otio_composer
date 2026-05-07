@@ -5,3 +5,4 @@ uv.lock
 __pycache__
 logs/
 *.json
+audio_otio_composer.egg-info

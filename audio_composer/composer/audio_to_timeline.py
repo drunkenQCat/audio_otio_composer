@@ -2,25 +2,30 @@ from pathlib import Path
 import os
 
 from audio_composer.composer.scanline_composer import generate_no_overlap_tracks
-from audio_composer.models.audioclip import AudioClip, AudioGap
+from audio_composer.models.audioclip import AudioClip, AudioGap, MODE_MIX
 from audio_composer.models.audiotrack import AudioTrack, CharacterGroup
 
 
 def safe_path(path: Path) -> str:
-    """将 Path 转成带windows 标准长路径前缀的绝对路径字符串"""
-    if os.name == "nt":
-        abs_path = path.resolve()
-        return f"\\\\?\\{abs_path}"
-    else:
-        return path.as_posix()
+    """将 Path 转成标准 file:/// URI 格式（用于 OTIO target_url）"""
+    return "file:///" + path.resolve().as_posix()
 
 
-def get_audio_clips(folder: str, fps: float = 24.0) -> list[AudioClip]:
+def local_path(path: Path) -> str:
+    """将 Path 转成本地绝对路径（用于 wavinfo 等本地文件读取）"""
+    return str(path.resolve())
+
+
+def get_audio_clips(
+    folder: str, fps: float = 24.0, metadata_mode: str = MODE_MIX
+) -> list[AudioClip]:
     """
     从指定文件夹中获取所有音频剪辑。
 
     参数:
         folder (str): 包含音频文件的文件夹路径。
+        fps (float): 帧率。
+        metadata_mode (str): metadata 模式 ('mix', 'resolve', 'premiere')。
 
     返回:
         list[AudioClip]: AudioClip 对象的列表。
@@ -28,7 +33,11 @@ def get_audio_clips(folder: str, fps: float = 24.0) -> list[AudioClip]:
     audio_clips = []
     folder_path = Path(folder)
     for audio_file in folder_path.glob("**/*.wav"):
-        clip = AudioClip(audio_file=safe_path(audio_file), rate=fps)
+        clip = AudioClip(
+            audio_file=local_path(audio_file), rate=fps, metadata_mode=metadata_mode
+        )
+        # OTIO target_url 需要使用 file:/// URI 格式
+        clip.clip.media_reference.target_url = safe_path(audio_file)
         audio_clips.append(clip)
     return audio_clips
 
